@@ -267,7 +267,8 @@ class AgentActions:
                     self._gathered_credentials.add(credential.credential)
 
                 logger.info('discovered credential: ' + str(credential))
-                self.__annotate_edge(reference_node, credential.node, EdgeAnnotation.KNOWS)
+                # TODO We do not want edges to be added when a node finds credentials
+                # self.__annotate_edge(reference_node, credential.node, EdgeAnnotation.KNOWS)
 
         elif isinstance(outcome, model.LeakedNodesId):
             for node_id in outcome.nodes:
@@ -275,7 +276,8 @@ class AgentActions:
                     newly_discovered_nodes += 1
                     newly_discovered_nodes_value += self._environment.get_node(node_id).value
 
-                self.__annotate_edge(reference_node, node_id, EdgeAnnotation.KNOWS)
+                # TODO We do not want edges to be added when a node finds other nodes because out network edges represent connections not visiblity
+                # self.__annotate_edge(reference_node, node_id, EdgeAnnotation.KNOWS)
 
         return newly_discovered_nodes, newly_discovered_nodes_value, newly_discovered_credentials
 
@@ -432,8 +434,9 @@ class AgentActions:
             throw_if_vulnerability_not_present=False
         )
 
-        if succeeded:
-            self.__annotate_edge(node_id, target_node_id, EdgeAnnotation.REMOTE_EXPLOIT)
+        # TODO We do not want edges to be added to the network when the client runs remote vulnerabilities right?
+        # if succeeded:
+        #     self.__annotate_edge(node_id, target_node_id, EdgeAnnotation.REMOTE_EXPLOIT)
 
         return result
 
@@ -507,6 +510,14 @@ class AgentActions:
 
         target_node = self._environment.get_node(target_node_id)
         source_node = self._environment.get_node(source_node_id)
+
+        # check that there is an edge from the source to the target node
+        if not (source_node_id, target_node_id) in graph.edges:
+            if self._throws_on_invalid_actions:
+                raise ValueError(f"No edge in network from {source_node_id} to {target_node_id}")
+            else:
+                return ActionResult(reward=Penalty.INVALID_ACTION, outcome=None)
+
         # ensures that the source node is owned by the agent
         # and that the target node is discovered
 
@@ -567,7 +578,8 @@ class AgentActions:
             if target_node_id not in self._discovered_nodes:
                 self._discovered_nodes[target_node_id] = NodeTrackingInformation()
 
-            self.__annotate_edge(source_node_id, target_node_id, EdgeAnnotation.LATERAL_MOVE)
+            # TODO We do not add an edge when a machine is infected because our edges represent the network topology not the attackers progress
+            # self.__annotate_edge(source_node_id, target_node_id, EdgeAnnotation.LATERAL_MOVE)
 
             logger.info(f"Infected node '{target_node_id}' from '{source_node_id}'" +
                         f" via {port_name} with credential '{credential}'")
