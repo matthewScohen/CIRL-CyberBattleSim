@@ -446,6 +446,8 @@ class CyberBattleEnv(gym.Env):
         self.__node_count = len(initial_environment.network.nodes.items())
 
         # The Space object defining the valid actions of an attacker.
+
+        # TODO This is probably where we should restrict actions of the attacker
         local_vulnerabilities_count = self.__bounds.local_attacks_count
         remote_vulnerabilities_count = self.__bounds.remote_attacks_count
         maximum_node_count = self.__bounds.maximum_node_count
@@ -453,6 +455,7 @@ class CyberBattleEnv(gym.Env):
         port_count = self.__bounds.port_count
 
         action_spaces: ActionSpaceDict = {
+            # TODO We will probably need to redefine these spaces (see https://mgoulao.github.io/gym-docs/content/spaces/)
             "local_vulnerability": spaces.MultiDiscrete(
                 # source_node_id, vulnerability_id
                 [maximum_node_count, local_vulnerabilities_count]),
@@ -500,6 +503,9 @@ class CyberBattleEnv(gym.Env):
             # (1 for valid, 0 for invalid). Note: a valid action is not necessariliy guaranteed to succeed.
             # For instance it is a valid action to attempt to connect to a remote node with incorrect credentials,
             # even though such action would 'fail' and potentially yield a negative reward.
+
+            # TODO We might need to add something here to restrict attacker actions
+
             "action_mask": spaces.Dict({
                 "local_vulnerability":
                     spaces.MultiBinary([maximum_node_count, local_vulnerabilities_count]),
@@ -994,6 +1000,7 @@ class CyberBattleEnv(gym.Env):
         return in_range and self.apply_mask(action, action_mask)
 
     def sample_valid_action(self, kinds=None) -> Action:
+        # TODO We could potentially resrict actions here instead? 
         """Sample an action within the expected ranges until getting a valid one"""
         action_mask = self.compute_action_mask()
         action = self.sample_action_in_range(kinds)

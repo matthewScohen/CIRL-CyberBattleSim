@@ -547,7 +547,7 @@ class AgentActions:
 
         if not self.__is_passing_firewall_rules(target_node.firewall.incoming, port_name):
             logger.info(f"BLOCKED TRAFFIC: target node '{target_node_id}'" +
-                        f" is blocking outgoing traffic on port '{port_name}'")
+                        f" is blocking incoming traffic on port '{port_name}'")
             return ActionResult(reward=Penalty.BLOCKED_BY_REMOTE_FIREWALL,
                                 outcome=None)
 
