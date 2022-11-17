@@ -1000,7 +1000,7 @@ class CyberBattleEnv(gym.Env):
         return in_range and self.apply_mask(action, action_mask)
 
     def sample_valid_action(self, kinds=None) -> Action:
-        # TODO We could potentially resrict actions here instead? 
+        # TODO We could potentially resrict actions here instead?
         """Sample an action within the expected ranges until getting a valid one"""
         action_mask = self.compute_action_mask()
         action = self.sample_action_in_range(kinds)
